@@ -2,7 +2,7 @@
 
 ## 🎯 Mission
 Complete the **backend TypeScript fixes**, switch to **pnpm**, run migrations, verify the backend starts, then **initialize the frontend**.
-
+Do not run Docker in this section. 
 ---
 
 ## 📋 Current State (Read These First)
