@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uptime-postgres
+    environment:
+      POSTGRES_DB: uptime_monitor
+      POSTGRES_USER: uptime_user
+      POSTGRES_PASSWORD: uptime_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptime_user -d uptime_monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: uptime-backend
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: uptime_user
+      DB_PASSWORD: uptime_pass
+      DB_NAME: uptime_monitor
+      DB_SYNCHRONIZE: "true"
+      PORT: 3000
+      FRONTEND_URL: "http://localhost:5173"
+      JWT_SECRET: "dev-secret-change-in-prod"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: pnpm run start:dev
+
+volumes:
+  postgres_data:
