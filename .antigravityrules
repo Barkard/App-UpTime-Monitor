@@ -1,0 +1,14 @@
+# Google Antigravity Rules - NestJS + React Project (Uptime Monitor / Custom)
+
+## Language Directives
+- **Direct User Interaction (Conversations)**: All direct responses, questions, status updates, and interactive conversations with the USER MUST be written in Spanish (Español).
+- **Repository Output (Files & Deliverables)**: All files created or modified inside this repository (including but not limited to source code files, config files, package manifests, comments, tests, API specifications, and documentation files like README.md, ARCHITECTURE.md, and blueprints) MUST be written strictly in English.
+
+## Technology Stack
+- **Backend**: NestJS (TypeScript).
+- **Frontend**: React (TypeScript / CSS).
+
+## Coding & Architectural Principles
+- The project structure and layers must adhere to NestJS standards (modules, controllers, services) and React best practices.
+- Do not use Spanish names for functions, variables, classes, folders, database schemas, or properties.
+- Ensure all logging statements, API responses, error messages, and documentation in code are in English.

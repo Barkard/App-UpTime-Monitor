@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NetGuard Ops | Network Uptime Monitor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#4d44e3",
+                    "surface-container-high": "#dce9ff",
+                    "primary": "#3525cd",
+                    "on-tertiary-fixed": "#40000d",
+                    "on-secondary-fixed": "#002113",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "tertiary-container": "#bf0f3c",
+                    "primary-container": "#4f46e5",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#92002a",
+                    "tertiary-fixed": "#ffdadb",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "tertiary": "#95002b",
+                    "on-secondary-container": "#00714d",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary-fixed-dim": "#ffb2b7",
+                    "outline": "#777587",
+                    "outline-variant": "#c7c4d8",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary": "#ffffff",
+                    "background": "#f8f9ff",
+                    "on-tertiary-container": "#ffd0d2",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-surface": "#213145",
+                    "on-primary-container": "#dad7ff",
+                    "on-surface-variant": "#464555",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-fixed-variant": "#005236",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-container": "#6cf8bb",
+                    "on-error": "#ffffff",
+                    "secondary": "#006c49",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-dim": "#cbdbf5",
+                    "surface-variant": "#d3e4fe",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#0f0069",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "sm": "16px",
+                    "lg": "32px",
+                    "base": "4px",
+                    "container-max": "1440px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xl": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "data-mono": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .status-pulse-healthy {
+            box-shadow: 0 0 0 0 rgba(78, 222, 163, 0.4);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(78, 222, 163, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(78, 222, 163, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(78, 222, 163, 0); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar Anchor -->
+<aside class="w-60 h-full fixed left-0 top-0 flex flex-col py-md px-sm bg-surface-container-lowest border-r border-outline-variant z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">NetGuard Ops</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant opacity-70">Global Network Admin</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-primary font-bold bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-body-md text-body-md">Device Management</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-body-md text-body-md">Event Logs</span>
+</a>
+</nav>
+<div class="mt-auto px-sm pt-md border-t border-outline-variant">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    AD
+                </div>
+<div>
+<p class="font-body-sm text-body-sm font-bold">Admin User</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">SRE Team Alpha</p>
+</div>
+</div>
+<button class="w-full py-xs bg-primary text-on-primary rounded-lg font-body-md text-body-md hover:opacity-90 transition-opacity flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="support">support</span>
+                Support Ticket
+            </button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-60 flex-1 flex flex-col min-h-screen overflow-x-hidden">
+<!-- TopAppBar Anchor -->
+<header class="flex justify-between items-center w-full px-xl py-sm sticky top-0 z-40 bg-surface border-b border-outline-variant shadow-sm backdrop-blur-md bg-opacity-80">
+<div class="flex items-center gap-lg">
+<h2 class="text-headline-md font-headline-md font-black text-primary">Network Uptime Monitor</h2>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm font-body-sm w-64 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Search hosts, IPs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-sm py-1.5 border border-primary text-primary rounded-lg font-body-sm text-body-sm hover:bg-primary hover:text-white transition-all active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+                    Refresh
+                </button>
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-xl space-y-xl max-w-container-max mx-auto w-full">
+<!-- Global Stats Row -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Total Devices -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex items-center justify-between overflow-hidden relative group">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">TOTAL DEVICES</p>
+<h3 class="text-headline-lg font-headline-lg">1,248</h3>
+<p class="text-body-sm font-body-sm text-secondary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span>
+                            +12 this week
+                        </p>
+</div>
+<div class="text-primary-container opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[64px]" data-icon="dns">dns</span>
+</div>
+</div>
+<!-- Online -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex items-center justify-between overflow-hidden relative group">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">ONLINE</p>
+<h3 class="text-headline-lg font-headline-lg text-secondary">1,242</h3>
+<p class="text-body-sm font-body-sm text-secondary mt-1">99.5% Uptime</p>
+</div>
+<div class="text-secondary opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[64px]" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<!-- Offline -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex items-center justify-between overflow-hidden relative group">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">OFFLINE</p>
+<h3 class="text-headline-lg font-headline-lg text-error">6</h3>
+<p class="text-body-sm font-body-sm text-error mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="warning">warning</span>
+                            Critical alerts
+                        </p>
+</div>
+<div class="text-error opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[64px]" data-icon="error">error</span>
+</div>
+</div>
+<!-- Avg Latency -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex items-center justify-between overflow-hidden relative group">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">AVG. LATENCY</p>
+<h3 class="text-headline-lg font-headline-lg">24ms</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">Stable</p>
+</div>
+<div class="text-surface-tint opacity-20 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[64px]" data-icon="speed">speed</span>
+</div>
+</div>
+</section>
+<!-- Dashboard Actions -->
+<section class="flex justify-between items-end">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Critical Infrastructure</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Real-time health monitoring for core services</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-bold flex items-center gap-sm shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    Quick Add Host
+                </button>
+</section>
+<!-- Device Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Device Card 1 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center status-pulse-healthy">
+<span class="material-symbols-outlined" data-icon="router">router</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Core Router 01</h4>
+<p class="font-data-mono text-data-mono text-on-surface-variant">192.168.1.1</p>
+</div>
+</div>
+<span class="px-sm py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-caps font-label-caps flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                            UP
+                        </span>
+</div>
+<div class="flex items-center justify-between mb-sm">
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">LATENCY</p>
+<p class="font-data-mono text-headline-md text-primary">12ms</p>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-md"></div>
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">UPTIME (24H)</p>
+<p class="font-data-mono text-headline-md text-secondary">100%</p>
+</div>
+</div>
+<div class="h-16 w-full bg-surface-container-low rounded-lg p-2 overflow-hidden relative">
+<!-- Sparkline Simulation with SVG -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0 15 L10 12 L20 16 L30 14 L40 13 L50 15 L60 11 L70 14 L80 12 L90 13 L100 12" fill="none" stroke="#006c49" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="mt-sm flex justify-between text-label-caps text-on-surface-variant opacity-60">
+<span>24H Trend</span>
+<span>Normal</span>
+</div>
+</div>
+<!-- Device Card 2 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="storage">storage</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">SQL Database (Primary)</h4>
+<p class="font-data-mono text-data-mono text-on-surface-variant">10.0.4.155</p>
+</div>
+</div>
+<span class="px-sm py-1 bg-error-container text-on-error-container rounded-full text-label-caps font-label-caps flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-error rounded-full animate-pulse"></span>
+                            DOWN
+                        </span>
+</div>
+<div class="flex items-center justify-between mb-sm">
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">LATENCY</p>
+<p class="font-data-mono text-headline-md text-error">--</p>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-md"></div>
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">UPTIME (24H)</p>
+<p class="font-data-mono text-headline-md text-on-surface-variant">96.4%</p>
+</div>
+</div>
+<div class="h-16 w-full bg-surface-container-low rounded-lg p-2 overflow-hidden relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0 12 L20 11 L40 13 L60 12 L70 20 L80 20 L90 20 L100 20" fill="none" stroke="#ba1a1a" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="mt-sm flex justify-between text-label-caps text-on-surface-variant opacity-60">
+<span>24H Trend</span>
+<span class="text-error font-bold">CRITICAL OUTAGE</span>
+</div>
+</div>
+<!-- Device Card 3 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center status-pulse-healthy">
+<span class="material-symbols-outlined" data-icon="cloud_queue">cloud_queue</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">AWS Gateway West-1</h4>
+<p class="font-data-mono text-data-mono text-on-surface-variant">54.21.32.1</p>
+</div>
+</div>
+<span class="px-sm py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-caps font-label-caps flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                            UP
+                        </span>
+</div>
+<div class="flex items-center justify-between mb-sm">
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">LATENCY</p>
+<p class="font-data-mono text-headline-md text-primary">48ms</p>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-md"></div>
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">UPTIME (24H)</p>
+<p class="font-data-mono text-headline-md text-secondary">99.9%</p>
+</div>
+</div>
+<div class="h-16 w-full bg-surface-container-low rounded-lg p-2 overflow-hidden relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0 10 L15 11 L30 10 L45 12 L60 11 L75 10 L90 11 L100 10" fill="none" stroke="#006c49" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="mt-sm flex justify-between text-label-caps text-on-surface-variant opacity-60">
+<span>24H Trend</span>
+<span>Excellent</span>
+</div>
+</div>
+<!-- Device Card 4 -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm hover:border-primary transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">Edge Switch L2-B</h4>
+<p class="font-data-mono text-data-mono text-on-surface-variant">192.168.10.4</p>
+</div>
+</div>
+<span class="px-sm py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-caps font-label-caps flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                            UP
+                        </span>
+</div>
+<div class="flex items-center justify-between mb-sm">
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">LATENCY</p>
+<p class="font-data-mono text-headline-md text-primary">5ms</p>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-md"></div>
+<div class="text-center flex-1">
+<p class="text-label-caps text-on-surface-variant">UPTIME (24H)</p>
+<p class="font-data-mono text-headline-md text-secondary">100%</p>
+</div>
+</div>
+<div class="h-16 w-full bg-surface-container-low rounded-lg p-2 overflow-hidden relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0 12 L10 12 L20 12 L30 12 L40 12 L50 12 L60 12 L70 12 L80 12 L90 12 L100 12" fill="none" stroke="#006c49" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="mt-sm flex justify-between text-label-caps text-on-surface-variant opacity-60">
+<span>24H Trend</span>
+<span>Rock Solid</span>
+</div>
+</div>
+<!-- Empty State / Add Placeholder -->
+<div class="border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-xl group hover:border-primary hover:bg-primary/5 transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary transition-all mb-md">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</div>
+<p class="font-body-md text-body-md font-bold">Add New Device</p>
+<p class="text-body-sm text-on-surface-variant">Monitor another endpoint</p>
+</div>
+</section>
+<!-- Bottom Section: Map & Events -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter pb-xl">
+<!-- Map View (Bento Large) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col h-[400px]">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h4 class="font-body-md text-body-md font-bold">Global Deployment Map</h4>
+<div class="flex gap-xs">
+<span class="px-xs py-0.5 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold">DC-EAST</span>
+<span class="px-xs py-0.5 bg-primary-container text-on-primary-container rounded text-[10px] font-bold">DC-WEST</span>
+</div>
+</div>
+<div class="flex-1 relative">
+<div class="absolute inset-0 grayscale opacity-40 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=40.7128,-74.0060&amp;zoom=2&amp;size=1000x400&amp;style=feature:all|element:labels|visibility:off&amp;style=feature:water|color:0xe5eeff&amp;style=feature:landscape|color:0xf8f9ff')] bg-cover" data-location="World" style=""></div>
+<!-- UI Overlay Map Dots -->
+<div class="absolute top-1/4 left-1/4 w-3 h-3 bg-secondary rounded-full status-pulse-healthy"></div>
+<div class="absolute top-1/3 left-1/2 w-3 h-3 bg-secondary rounded-full status-pulse-healthy"></div>
+<div class="absolute top-2/3 right-1/4 w-3 h-3 bg-error rounded-full animate-pulse shadow-[0_0_15px_rgba(186,26,26,0.6)]"></div>
+<div class="absolute bottom-1/4 right-1/2 w-3 h-3 bg-secondary rounded-full status-pulse-healthy"></div>
+</div>
+</div>
+<!-- Recent Events (Bento Small) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col h-[400px]">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h4 class="font-body-md text-body-md font-bold">Incident Log</h4>
+<button class="text-primary text-label-caps font-label-caps hover:underline">VIEW ALL</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-sm space-y-sm">
+<div class="flex gap-sm p-sm bg-error-container/10 rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error" data-icon="emergency_home">emergency_home</span>
+<div>
+<p class="text-body-sm font-bold leading-tight">Database Offline</p>
+<p class="text-[12px] text-on-surface-variant">2 mins ago • SQL-Main-01</p>
+</div>
+</div>
+<div class="flex gap-sm p-sm bg-secondary-container/10 rounded-lg border-l-4 border-secondary">
+<span class="material-symbols-outlined text-secondary" data-icon="restore">restore</span>
+<div>
+<p class="text-body-sm font-bold leading-tight">Router Recovery</p>
+<p class="text-[12px] text-on-surface-variant">45 mins ago • Core-R-02</p>
+</div>
+</div>
+<div class="flex gap-sm p-sm bg-primary-container/10 rounded-lg border-l-4 border-primary">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<div>
+<p class="text-body-sm font-bold leading-tight">Configuration Updated</p>
+<p class="text-[12px] text-on-surface-variant">2 hours ago • Global-DNS</p>
+</div>
+</div>
+<div class="flex gap-sm p-sm bg-primary-container/10 rounded-lg border-l-4 border-primary">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<div>
+<p class="text-body-sm font-bold leading-tight">New Node Detected</p>
+<p class="text-[12px] text-on-surface-variant">5 hours ago • VPC-Sub-2</p>
+</div>
+</div>
+<div class="flex gap-sm p-sm bg-secondary-container/10 rounded-lg border-l-4 border-secondary">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+<div>
+<p class="text-body-sm font-bold leading-tight">Backup Completed</p>
+<p class="text-[12px] text-on-surface-variant">12 hours ago • Storage-A</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB Tooltip (Invisible initially) -->
+<div class="fixed bottom-24 right-8 bg-inverse-surface text-inverse-on-surface px-sm py-xs rounded text-body-sm pointer-events-none opacity-0 transition-opacity duration-300 z-50" id="fab-tooltip">
+        Monitor New Infrastructure
+    </div>
+<script>
+        // Micro-interaction for the FAB logic (though we have a primary CTA in layout, 
+        // usually top-tier dashboards use FABs for context)
+        document.addEventListener('DOMContentLoaded', () => {
+            const refreshBtn = document.querySelector('button:has(span[data-icon="refresh"])');
+            refreshBtn.addEventListener('click', () => {
+                const icon = refreshBtn.querySelector('span');
+                icon.classList.add('animate-spin');
+                setTimeout(() => {
+                    icon.classList.remove('animate-spin');
+                }, 1000);
+            });
+
+            // Card hover effects - simulated status flicker
+            const cards = document.querySelectorAll('.device-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body></html>

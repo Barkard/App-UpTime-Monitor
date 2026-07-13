@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#e2dfff",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "background": "#13121b",
+                        "on-secondary": "#233144",
+                        "surface-container-highest": "#35343e",
+                        "outline-variant": "#464555",
+                        "secondary": "#b9c7e0",
+                        "on-secondary-container": "#abb9d2",
+                        "on-tertiary-container": "#ffd2be",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "on-error": "#690005",
+                        "on-background": "#e4e1ee",
+                        "surface-container-lowest": "#0e0d16",
+                        "outline": "#918fa1",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "on-surface-variant": "#c7c4d8",
+                        "surface-container-low": "#1b1b24",
+                        "inverse-on-surface": "#302f39",
+                        "secondary-fixed": "#d5e3fd",
+                        "surface-container-high": "#2a2933",
+                        "secondary-container": "#3c4a5e",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-dim": "#13121b",
+                        "inverse-primary": "#4d44e3",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-tertiary": "#571f00",
+                        "surface-variant": "#35343e",
+                        "surface-tint": "#c3c0ff",
+                        "inverse-surface": "#e4e1ee",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "on-surface": "#e4e1ee",
+                        "surface-bright": "#393842",
+                        "tertiary-container": "#a44100",
+                        "on-error-container": "#ffdad6",
+                        "surface-container": "#1f1f28",
+                        "error-container": "#93000a",
+                        "primary-container": "#4f46e5",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#351000",
+                        "on-primary-fixed": "#0f0069",
+                        "tertiary-fixed": "#ffdbcc",
+                        "primary": "#c3c0ff",
+                        "surface": "#13121b",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "on-primary-container": "#dad7ff",
+                        "tertiary": "#ffb695",
+                        "on-primary": "#1d00a5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "48px",
+                        "sm": "8px",
+                        "container-max": "1440px",
+                        "gutter": "20px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "base-unit": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "label-mono": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Geist"],
+                        "button": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "button": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .network-pulse-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(185, 199, 224, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(185, 199, 224, 0.6); }
+        }
+        .log-row-new {
+            animation: slide-in 0.3s ease-out forwards;
+        }
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface dark">
+<!-- SideNavBar -->
+<aside class="w-60 h-full fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full py-md px-sm z-50">
+<div class="mb-xl px-xs">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">NetGuard Ops</h1>
+<p class="text-label-mono font-label-mono text-on-surface-variant mt-1 uppercase">Global Network Admin</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-xs py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-button text-button uppercase tracking-wider">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-xs py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-button text-button uppercase tracking-wider">Device Management</span>
+</a>
+<a class="flex items-center gap-3 px-xs py-2 rounded-lg text-primary font-bold bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-button text-button uppercase tracking-wider">Event Logs</span>
+</a>
+</nav>
+<div class="mt-auto px-xs pt-md border-t border-outline-variant">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-lg font-button text-button flex items-center justify-center gap-2 hover:opacity-80 transition-all duration-150 active:scale-95 uppercase">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+            Support Ticket
+        </button>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="docked full-width top-0 sticky z-40 bg-background shadow-sm border-b border-outline-variant ml-60">
+<div class="flex justify-between items-center w-full px-xl py-sm max-w-container-max mx-auto">
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary transition-all text-on-surface placeholder-on-surface-variant/50" placeholder="Search logs or devices..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="hidden md:block text-right">
+<h2 class="text-headline-md font-headline-md font-black text-primary">Network Uptime Monitor</h2>
+</div>
+<div class="flex items-center gap-sm border-l border-outline-variant pl-lg">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all active:scale-95">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all relative active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-background"></span>
+</button>
+<div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-all">
+<img class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant" data-alt="A clean, minimalist profile portrait of a tech administrator wearing a sleek navy uniform, set against a blurred high-tech server room background with soft blue glowing lights. The aesthetic is professional, modern, and authoritative, consistent with a high-performance network monitoring software brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZGzsiOTbJ7ySlYrxq_hJmISdBO-A_7B8URS6hIclcRdx1WKKvp64c9w76Rn8I-BoWmiUsMP0G9u-zRqx7Po95hT_FSx5AW7zh3obb7J6rcmMvN5bpPzQytqTM0reRZ2o_CC_kq469Xswhu-7RYn5dxOOCqjPjLfidcWCrXP0xHTwhUOcMjEXe4pHyw3f6o4bx6aUnMBjK-YZm35IKj99BPYC7SXsPwpfitbIK7sQiEL13sJrWxak"/>
+<span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-60 p-lg max-w-container-max mx-auto">
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Real-time Pulse Visualization -->
+<section class="col-span-12 lg:col-span-8">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-lg relative overflow-hidden h-64 flex flex-col">
+<div class="flex justify-between items-start mb-sm relative z-10">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Network Pulse</h3>
+<p class="text-body-sm text-on-surface-variant">Real-time ping latency across active nodes</p>
+</div>
+<div class="flex items-center gap-2 bg-secondary-container/30 px-3 py-1 rounded-full text-secondary border border-secondary/20">
+<span class="w-2 h-2 rounded-full bg-secondary network-pulse-glow"></span>
+<span class="font-label-mono text-label-mono uppercase">Live Status: Operational</span>
+</div>
+</div>
+<!-- Visualization Placeholder -->
+<div class="flex-1 relative flex items-end gap-1 mt-auto">
+<div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+<span class="material-symbols-outlined text-[200px]">hub</span>
+</div>
+<!-- Ping bars will be simulated here -->
+<div class="flex items-end justify-between w-full h-full pb-2 gap-1" id="pulse-container">
+<!-- JS will populate these -->
+</div>
+</div>
+</div>
+</section>
+<!-- Health Summary Bento -->
+<section class="col-span-12 lg:col-span-4 grid grid-cols-1 gap-sm">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex items-center gap-sm">
+<div class="w-12 h-12 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase">Uptime 24h</p>
+<p class="text-headline-md font-bold text-on-surface">99.98%</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex items-center gap-sm">
+<div class="w-12 h-12 rounded-lg bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase">Active Incidents</p>
+<p class="text-headline-md font-bold text-on-surface">02</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex items-center gap-sm">
+<div class="w-12 h-12 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">speed</span>
+</div>
+<div>
+<p class="text-label-mono font-label-mono text-on-surface-variant uppercase">Avg. Latency</p>
+<p class="text-headline-md font-bold text-on-surface">14ms</p>
+</div>
+</div>
+</section>
+<!-- Live Event Logs -->
+<section class="col-span-12">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg overflow-hidden flex flex-col h-[600px]">
+<!-- Table Header / Filters -->
+<div class="p-md border-b border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-sm">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Live Streaming Logs</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<p class="text-body-sm text-on-surface-variant">Monitoring 142 devices in real-time</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-sm">
+<select class="bg-surface-container-low border-outline-variant rounded-lg text-body-sm px-sm py-1 font-button text-on-surface focus:ring-primary focus:border-primary">
+<option>All Severity</option>
+<option>Info</option>
+<option>Warning</option>
+<option>Error</option>
+</select>
+<select class="bg-surface-container-low border-outline-variant rounded-lg text-body-sm px-sm py-1 font-button text-on-surface focus:ring-primary focus:border-primary">
+<option>All Devices</option>
+<option>Edge-Router-01</option>
+<option>Core-Switch-NYC</option>
+<option>Load-Balancer-AWS</option>
+</select>
+<button class="flex items-center gap-1 px-sm py-1 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors text-body-sm font-button uppercase text-on-surface">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                            Export
+                        </button>
+</div>
+</div>
+<!-- Log Table Body -->
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-lowest shadow-sm z-10">
+<tr class="border-b border-outline-variant bg-surface-container-lowest">
+<th class="px-md py-sm text-label-mono font-label-mono text-on-surface-variant uppercase tracking-wider">Timestamp</th>
+<th class="px-md py-sm text-label-mono font-label-mono text-on-surface-variant uppercase tracking-wider">Hostname</th>
+<th class="px-md py-sm text-label-mono font-label-mono text-on-surface-variant uppercase tracking-wider">Event Type</th>
+<th class="px-md py-sm text-label-mono font-label-mono text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-md py-sm text-label-mono font-label-mono text-on-surface-variant uppercase tracking-wider text-right">Latency</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20" id="log-table-body">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-xs font-data-mono text-data-mono text-on-surface-variant">14:22:01.034</td>
+<td class="px-md py-xs font-data-mono text-data-mono text-on-surface">core-sw-lon-02</td>
+<td class="px-md py-xs text-body-sm text-on-surface">Ping Successful</td>
+<td class="px-md py-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary text-[10px] font-bold uppercase tracking-wider border border-secondary/20">Info</span>
+</td>
+<td class="px-md py-xs text-right font-data-mono text-data-mono text-secondary">8ms</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-xs font-data-mono text-data-mono text-on-surface-variant">14:21:59.882</td>
+<td class="px-md py-xs font-data-mono text-data-mono text-on-surface">edge-rt-tok-05</td>
+<td class="px-md py-xs text-body-sm text-on-surface">Connection Timeout</td>
+<td class="px-md py-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container/20 text-error text-[10px] font-bold uppercase tracking-wider border border-error/20">Error</span>
+</td>
+<td class="px-md py-xs text-right font-data-mono text-data-mono text-error">TIMEOUT</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+    // Real-time Pulse simulation
+    const pulseContainer = document.getElementById('pulse-container');
+    const numBars = 45;
+    const bars = [];
+
+    for (let i = 0; i < numBars; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'flex-1 bg-primary/20 rounded-t-sm transition-all duration-300';
+        bar.style.height = '10%';
+        pulseContainer.appendChild(bar);
+        bars.push(bar);
+    }
+
+    function updatePulse() {
+        bars.forEach(bar => {
+            const height = Math.floor(Math.random() * 85) + 5;
+            let color = 'bg-primary';
+            let opacity = 'opacity-60';
+            
+            if (height > 75) {
+                color = 'bg-error';
+                opacity = 'opacity-80';
+            } else if (height < 25) {
+                color = 'bg-secondary';
+                opacity = 'opacity-40';
+            }
+            
+            bar.style.height = `${height}%`;
+            bar.className = `flex-1 ${color} ${opacity} rounded-t-sm transition-all duration-700`;
+        });
+    }
+    setInterval(updatePulse, 800);
+    updatePulse();
+
+    // Log streaming simulation
+    const logTableBody = document.getElementById('log-table-body');
+    const hostnames = ['core-sw-lon-02', 'edge-rt-tok-05', 'db-cluster-node-03', 'web-fe-sf-01', 'load-bal-aws-v4', 'storage-san-09'];
+    const events = ['Ping Successful', 'Connection Timeout', 'Status Change', 'Packet Drop Detected', 'BGP Peer Reset', 'Interface Up'];
+    const severities = [
+        { label: 'Info', class: 'bg-secondary-container/20 text-secondary border-secondary/20', color: 'text-secondary' },
+        { label: 'Warning', class: 'bg-tertiary-container/20 text-tertiary border-tertiary/20', color: 'text-tertiary' },
+        { label: 'Error', class: 'bg-error-container/20 text-error border-error/20', color: 'text-error' }
+    ];
+
+    function addLogRow() {
+        const row = document.createElement('tr');
+        row.className = 'log-row-new hover:bg-surface-container-low transition-colors group';
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-GB', { hour12: false }) + '.' + now.getMilliseconds().toString().padStart(3, '0');
+        const host = hostnames[Math.floor(Math.random() * hostnames.length)];
+        const event = events[Math.floor(Math.random() * events.length)];
+        
+        let sev;
+        if (event.includes('Timeout') || event.includes('Drop')) {
+            sev = severities[2];
+        } else if (event.includes('Reset') || event.includes('Change') || event.includes('Warning')) {
+            sev = severities[1];
+        } else {
+            sev = severities[0];
+        }
+        
+        const latency = sev.label === 'Error' ? 'TIMEOUT' : Math.floor(Math.random() * 45 + 5) + 'ms';
+
+        row.innerHTML = `
+            <td class="px-md py-xs font-data-mono text-data-mono text-on-surface-variant">${timeStr}</td>
+            <td class="px-md py-xs font-data-mono text-data-mono text-on-surface">${host}</td>
+            <td class="px-md py-xs text-body-sm text-on-surface">${event}</td>
+            <td class="px-md py-xs">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${sev.class} text-[10px] font-bold uppercase tracking-wider border">${sev.label}</span>
+            </td>
+            <td class="px-md py-xs text-right font-data-mono text-data-mono ${sev.color}">${latency}</td>
+        `;
+
+        logTableBody.insertBefore(row, logTableBody.firstChild);
+        if (logTableBody.children.length > 25) {
+            logTableBody.removeChild(logTableBody.lastChild);
+        }
+    }
+
+    setInterval(addLogRow, 2000);
+    // Initial rows
+    for(let i=0; i<5; i++) addLogRow();
+</script>
+</body></html>

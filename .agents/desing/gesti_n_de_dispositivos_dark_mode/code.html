@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NetGuard Ops - Device Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#e2dfff",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "background": "#13121b",
+                        "on-secondary": "#233144",
+                        "surface-container-highest": "#35343e",
+                        "outline-variant": "#464555",
+                        "secondary": "#b9c7e0",
+                        "on-secondary-container": "#abb9d2",
+                        "on-tertiary-container": "#ffd2be",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "on-error": "#690005",
+                        "on-background": "#e4e1ee",
+                        "surface-container-lowest": "#0e0d16",
+                        "outline": "#918fa1",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "on-surface-variant": "#c7c4d8",
+                        "surface-container-low": "#1b1b24",
+                        "inverse-on-surface": "#302f39",
+                        "secondary-fixed": "#d5e3fd",
+                        "surface-container-high": "#2a2933",
+                        "secondary-container": "#3c4a5e",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-dim": "#13121b",
+                        "inverse-primary": "#4d44e3",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-tertiary": "#571f00",
+                        "surface-variant": "#35343e",
+                        "surface-tint": "#c3c0ff",
+                        "inverse-surface": "#e4e1ee",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "on-surface": "#e4e1ee",
+                        "surface-bright": "#393842",
+                        "tertiary-container": "#a44100",
+                        "on-error-container": "#ffdad6",
+                        "surface-container": "#1f1f28",
+                        "error-container": "#93000a",
+                        "primary-container": "#4f46e5",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#351000",
+                        "on-primary-fixed": "#0f0069",
+                        "tertiary-fixed": "#ffdbcc",
+                        "primary": "#c3c0ff",
+                        "surface": "#13121b",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "on-primary-container": "#dad7ff",
+                        "tertiary": "#ffb695",
+                        "on-primary": "#1d00a5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "48px",
+                        "sm": "8px",
+                        "container-max": "1440px",
+                        "gutter": "20px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "base-unit": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-mono": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Inter"],
+                        "button": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .status-pulse {
+            position: relative;
+        }
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.4; }
+            70% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #464555;
+            border-radius: 10px;
+        }
+        .form-well {
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Side Navigation Shell -->
+<aside class="w-60 h-full fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-md px-sm z-50">
+<div class="mb-xl px-xs">
+<h1 class="text-headline-md font-bold text-primary">NetGuard Ops</h1>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-base-unit">Global Network Admin</p>
+</div>
+<nav class="flex-grow space-y-xs">
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<!-- Active State for Device Management -->
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-primary bg-surface-container-high font-bold transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="text-sm">Device Management</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-sm">Event Logs</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<button class="w-full flex items-center justify-center gap-xs bg-primary text-on-primary text-sm font-semibold py-sm rounded-lg hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="confirmation_number">confirmation_number</span>
+            Support Ticket
+        </button>
+<div class="mt-md flex items-center gap-sm px-xs">
+<img alt="Admin User" class="w-10 h-10 rounded-full border-2 border-surface-container-high object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZDcd1ebRCrJuC4Gi5HeUNUCzJRW2U1KNHxw-uPCWl0E4X0hcLL5aw6GajLtEQZqdBSJTQqbf2gT8SC2Cw_yAp1zQ7e_t80KT433j45-rX5DMLmeCP71Gm5BPMNxSDviArvPGT3BRerk8nwQRaX00cUf45HDOu3N9MncxOTo3xyJi1JEkmP9EW3IYffwqPFVRY9AtMoJrH9aaOHVYc1dsSo5_fNcd9xI36O7upPZtXDGsFy24Z5t8"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold truncate">Admin User</p>
+<p class="text-[10px] text-on-surface-variant truncate">admin@netguard.ops</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top App Bar -->
+<header class="flex justify-between items-center w-full px-xl py-sm max-w-container-max mx-auto ml-60 bg-surface border-b border-outline-variant sticky top-0 z-40 shadow-sm">
+<div class="flex items-center gap-md">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-on-surface-variant group-focus-within:text-primary">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</span>
+<input class="pl-10 pr-md py-xs bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary-container w-64 transition-all text-on-surface" placeholder="Search devices, IPs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+<span class="text-sm font-medium">Refresh</span>
+</button>
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-60 p-lg max-w-container-max mx-auto min-h-screen">
+<header class="mb-lg flex justify-between items-end">
+<div>
+<h2 class="text-headline-md font-bold text-on-surface">Device Management</h2>
+<p class="text-on-surface-variant text-sm mt-xs">Configure, monitor, and manage infrastructure assets.</p>
+</div>
+<button class="bg-primary text-on-primary px-md py-sm rounded-lg flex items-center gap-xs text-sm font-semibold hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all" onclick="toggleModal('add-device-modal')">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            Add New Device
+        </button>
+</header>
+<!-- Stats Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm">
+<p class="text-on-surface-variant text-[12px] font-bold uppercase tracking-wider mb-xs">Total Devices</p>
+<p class="text-2xl font-bold text-on-surface">128</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm">
+<p class="text-on-surface-variant text-[12px] font-bold uppercase tracking-wider mb-xs">Healthy Nodes</p>
+<div class="flex items-center gap-sm">
+<p class="text-2xl font-bold text-secondary">124</p>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-xs py-0.5 rounded-full uppercase tracking-tighter">+2.4%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm">
+<p class="text-on-surface-variant text-[12px] font-bold uppercase tracking-wider mb-xs">Critical Alarms</p>
+<p class="text-2xl font-bold text-error">2</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl shadow-sm">
+<p class="text-on-surface-variant text-[12px] font-bold uppercase tracking-wider mb-xs">Avg Latency</p>
+<p class="text-2xl font-bold text-on-surface">14ms</p>
+</div>
+</div>
+<!-- Devices Table -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Device Name</th>
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">IP Address</th>
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Type</th>
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Frequency</th>
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+<th class="px-md py-sm text-[12px] font-bold uppercase tracking-wider text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="dns">dns</span>
+<div>
+<p class="text-sm font-bold text-on-surface">AWS-Prod-Node-01</p>
+<p class="text-[11px] text-on-surface-variant">US-East-1 • VPC-Main</p>
+</div>
+</div>
+</td>
+<td class="px-md py-sm font-mono text-sm text-on-surface">172.16.0.45</td>
+<td class="px-md py-sm">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase px-sm py-1 rounded-full border border-outline-variant">Server</span>
+</td>
+<td class="px-md py-sm text-sm text-on-surface">30s</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs text-secondary">
+<span class="status-pulse w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[12px] font-bold uppercase">Healthy</span>
+</div>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end items-center gap-xs">
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-primary transition-all" title="Edit">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-tertiary transition-all" title="Pause">
+<span class="material-symbols-outlined text-[20px]" data-icon="pause_circle">pause_circle</span>
+</button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-error transition-all" title="Delete">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="router">router</span>
+<div>
+<p class="text-sm font-bold text-on-surface">Core-Gateway-L3</p>
+<p class="text-[11px] text-on-surface-variant">Floor 4 • HQ</p>
+</div>
+</div>
+</td>
+<td class="px-md py-sm font-mono text-sm text-on-surface">10.0.0.1</td>
+<td class="px-md py-sm">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase px-sm py-1 rounded-full border border-outline-variant">Router</span>
+</td>
+<td class="px-md py-sm text-sm text-on-surface">60s</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs text-error">
+<span class="status-pulse w-2 h-2 rounded-full bg-error"></span>
+<span class="text-[12px] font-bold uppercase">Latency High</span>
+</div>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end items-center gap-xs">
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-primary transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-tertiary transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="pause_circle">pause_circle</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-error transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="sensors">sensors</span>
+<div>
+<p class="text-sm font-bold text-on-surface">Smart-Lock-Warehouse-01</p>
+<p class="text-[11px] text-on-surface-variant">IoT Network • Remote Site B</p>
+</div>
+</div>
+</td>
+<td class="px-md py-sm font-mono text-sm text-on-surface">192.168.20.104</td>
+<td class="px-md py-sm">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase px-sm py-1 rounded-full border border-outline-variant">IoT</span>
+</td>
+<td class="px-md py-sm text-sm text-on-surface">300s</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="text-[12px] font-bold uppercase">Monitoring Paused</span>
+</div>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end items-center gap-xs">
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-primary transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-primary transition-all" title="Resume"><span class="material-symbols-outlined text-[20px]" data-icon="play_circle" style="font-variation-settings: 'FILL' 1;">play_circle</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-error transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="dns">dns</span>
+<div>
+<p class="text-sm font-bold text-on-surface">SQL-Back-02</p>
+<p class="text-[11px] text-on-surface-variant">On-Prem • Rack 12</p>
+</div>
+</div>
+</td>
+<td class="px-md py-sm font-mono text-sm text-on-surface">172.16.1.12</td>
+<td class="px-md py-sm">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase px-sm py-1 rounded-full border border-outline-variant">Server</span>
+</td>
+<td class="px-md py-sm text-sm text-on-surface">15s</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs text-secondary">
+<span class="status-pulse w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[12px] font-bold uppercase">Healthy</span>
+</div>
+</td>
+<td class="px-md py-sm text-right">
+<div class="flex justify-end items-center gap-xs">
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-primary transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-tertiary transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="pause_circle">pause_circle</span></button>
+<button class="p-xs hover:bg-surface-container rounded-lg text-on-surface-variant hover:text-error transition-all"><span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-md py-sm bg-surface-container-low flex justify-between items-center border-t border-outline-variant">
+<p class="text-sm text-on-surface-variant">Showing 1-4 of 128 devices</p>
+<div class="flex gap-xs">
+<button class="p-xs bg-surface-container-lowest border border-outline-variant rounded hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-xs bg-surface-container-lowest border border-outline-variant rounded hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Side Panel Form (Modal Transition) -->
+<div class="fixed inset-0 z-[60] invisible opacity-0 transition-all duration-300" id="add-device-modal">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleModal('add-device-modal')"></div>
+<!-- Panel -->
+<div class="absolute right-0 top-0 h-full w-full max-w-md bg-surface-container-lowest shadow-2xl transform translate-x-full transition-transform duration-300 ease-out" id="modal-panel">
+<div class="h-full flex flex-col p-lg">
+<header class="flex justify-between items-center mb-xl">
+<div>
+<h3 class="text-headline-md font-bold text-on-surface">Add New Device</h3>
+<p class="text-on-surface-variant text-sm">Provision a new node for continuous monitoring.</p>
+</div>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant" onclick="toggleModal('add-device-modal')">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+<form class="space-y-lg flex-grow overflow-y-auto pr-xs">
+<div class="space-y-xs">
+<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Friendly Name</label>
+<input class="w-full px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none form-well text-on-surface" placeholder="e.g. Edge-Router-Dallas-01" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">IP / Hostname</label>
+<input class="w-full px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none form-well font-mono text-on-surface" placeholder="192.168.1.1 or example.local" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Device Type</label>
+<select class="w-full px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer text-on-surface">
+<option>Server</option>
+<option>Router</option>
+<option>IoT</option>
+<option>Gateway</option>
+<option>Switch</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Ping Interval</label>
+<div class="relative">
+<input class="w-full px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all form-well text-on-surface" type="number" value="60"/>
+<span class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none">sec</span>
+</div>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Tags</label>
+<div class="flex flex-wrap gap-xs p-sm bg-surface-container-low border border-outline-variant rounded-lg form-well min-h-[80px]">
+<span class="bg-primary-container text-on-primary-container px-sm py-1 rounded-full text-xs flex items-center gap-xs font-medium">
+                            production
+                            <span class="material-symbols-outlined text-[14px] cursor-pointer" data-icon="close">close</span>
+</span>
+<span class="bg-primary-container text-on-primary-container px-sm py-1 rounded-full text-xs flex items-center gap-xs font-medium">
+                            us-east
+                            <span class="material-symbols-outlined text-[14px] cursor-pointer" data-icon="close">close</span>
+</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm p-0 w-24 text-on-surface" placeholder="Add tag..." type="text"/>
+</div>
+</div>
+<!-- Visual Asset Placeholder in Modal -->
+<div class="mt-lg p-md border border-outline-variant border-dashed rounded-xl flex items-center justify-center bg-surface-container-low">
+<div class="text-center space-y-sm">
+<span class="material-symbols-outlined text-outline text-[48px]" data-icon="upload_file">upload_file</span>
+<p class="text-sm text-on-surface-variant">Import devices from CSV or JSON</p>
+<button class="text-primary font-bold text-sm hover:underline" type="button">Select File</button>
+</div>
+</div>
+</form>
+<footer class="mt-xl pt-lg border-t border-outline-variant flex gap-md">
+<button class="flex-1 py-sm border border-outline-variant text-on-surface rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors" onclick="toggleModal('add-device-modal')">
+                    Cancel
+                </button>
+<button class="flex-1 py-sm bg-primary text-on-primary rounded-lg text-sm font-semibold hover:shadow-lg active:scale-95 transition-all">
+                    Create Device
+                </button>
+</footer>
+</div>
+</div>
+</div>
+<script>
+    function toggleModal(id) {
+        const modal = document.getElementById(id);
+        const panel = modal.querySelector('#modal-panel');
+        
+        if (modal.classList.contains('invisible')) {
+            modal.classList.remove('invisible');
+            modal.classList.add('opacity-100');
+            panel.classList.remove('translate-x-full');
+            panel.classList.add('translate-x-0');
+            document.body.style.overflow = 'hidden';
+        } else {
+            modal.classList.remove('opacity-100');
+            panel.classList.remove('translate-x-0');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => {
+                modal.classList.add('invisible');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+    }
+
+    // Search Bar Micro-interaction
+    const searchInput = document.querySelector('input[type="text"]');
+    searchInput.addEventListener('focus', () => {
+        searchInput.classList.add('w-96');
+    });
+    searchInput.addEventListener('blur', () => {
+        if (searchInput.value === "") searchInput.classList.remove('w-96');
+    });
+</script>
+</body></html>
