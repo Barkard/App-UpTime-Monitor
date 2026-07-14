@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Setting } from './entities/setting.entity';
+import { SettingKey } from './dto/update-settings.dto';
 import { MonitoringService } from '../monitoring/monitoring.service';
+import { MonitoringScheduler } from '../monitoring/monitoring.scheduler';
 
 export const DEFAULT_SETTINGS = {
   monitoring_interval_seconds: '60',
@@ -18,6 +20,7 @@ export class SettingsService {
     @InjectRepository(Setting)
     private settingRepository: Repository<Setting>,
     private monitoringService: MonitoringService,
+    private monitoringScheduler: MonitoringScheduler,
   ) {}
 
   async onModuleInit() {
@@ -39,7 +42,9 @@ export class SettingsService {
   }
 
   async get(key: string): Promise<string | null> {
-    const setting = await this.settingRepository.findOne({ where: { key } });
+    const setting = await this.settingRepository.findOne({
+      where: { key: key as SettingKey },
+    });
     return (
       setting?.value ??
       DEFAULT_SETTINGS[key as keyof typeof DEFAULT_SETTINGS] ??
@@ -48,13 +53,15 @@ export class SettingsService {
   }
 
   async set(key: string, value: string): Promise<void> {
-    const setting = await this.settingRepository.findOne({ where: { key } });
+    const setting = await this.settingRepository.findOne({
+      where: { key: key as SettingKey },
+    });
     if (setting) {
       setting.value = value;
       await this.settingRepository.save(setting);
     } else {
       await this.settingRepository.save(
-        this.settingRepository.create({ key, value }),
+        this.settingRepository.create({ key: key as SettingKey, value }),
       );
     }
   }
@@ -65,18 +72,20 @@ export class SettingsService {
     }
 
     if ('monitoring_interval_seconds' in updates) {
-      await this.monitoringService.reschedule(
-        parseInt(updates.monitoring_interval_seconds, 10),
-      );
+      const intervalSeconds = parseInt(updates.monitoring_interval_seconds, 10);
+      await this.monitoringService.reschedule(intervalSeconds);
+      this.monitoringScheduler.reschedule(intervalSeconds);
     }
   }
 
   async ensureDefaults(): Promise<void> {
     for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
-      const existing = await this.settingRepository.findOne({ where: { key } });
+      const existing = await this.settingRepository.findOne({
+        where: { key: key as SettingKey },
+      });
       if (!existing) {
         await this.settingRepository.save(
-          this.settingRepository.create({ key, value }),
+          this.settingRepository.create({ key: key as SettingKey, value }),
         );
       }
     }

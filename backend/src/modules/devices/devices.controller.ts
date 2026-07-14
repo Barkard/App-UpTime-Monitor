@@ -4,7 +4,6 @@ import {
   Post,
   Patch,
   Delete,
-  Param,
   Body,
   Query,
   UseGuards,
@@ -18,9 +17,9 @@ import {
   DeviceResponseDto,
   DeviceWithStatsDto,
 } from './dto/device-response.dto';
-import { PaginatedResponseDto } from '../common/dto/pagination.dto';
-import { ValidateUuid } from '../common/decorators/validate-uuid.param.decorator';
-import { ApiKeyGuard } from '../common/guards/api-key.guard';
+import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import { ValidateUuid } from '../../common/decorators/validate-uuid.param.decorator';
+import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -52,9 +51,7 @@ export class DevicesController {
   @ApiParam({ name: 'id', description: 'Device UUID' })
   @ApiResponse({ status: 200, type: DeviceResponseDto })
   @ApiResponse({ status: 404, description: 'Device not found' })
-  async findOne(
-    @Param('id', ValidateUuid) id: string,
-  ): Promise<DeviceResponseDto> {
+  async findOne(@ValidateUuid('id') id: string): Promise<DeviceResponseDto> {
     return this.devicesService.findOne(id);
   }
 
@@ -63,9 +60,7 @@ export class DevicesController {
   @ApiParam({ name: 'id', description: 'Device UUID' })
   @ApiResponse({ status: 200, type: DeviceWithStatsDto })
   @ApiResponse({ status: 404, description: 'Device not found' })
-  async getStats(
-    @Param('id', ValidateUuid) id: string,
-  ): Promise<DeviceWithStatsDto> {
+  async getStats(@ValidateUuid('id') id: string): Promise<DeviceWithStatsDto> {
     return this.devicesService.findOneWithStats(id);
   }
 
@@ -76,7 +71,7 @@ export class DevicesController {
   @ApiResponse({ status: 404, description: 'Device not found' })
   @ApiResponse({ status: 409, description: 'Device conflict' })
   async update(
-    @Param('id', ValidateUuid) id: string,
+    @ValidateUuid('id') id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
   ): Promise<DeviceResponseDto> {
     return this.devicesService.update(id, updateDeviceDto);
@@ -87,7 +82,7 @@ export class DevicesController {
   @ApiParam({ name: 'id', description: 'Device UUID' })
   @ApiResponse({ status: 204, description: 'Device deleted' })
   @ApiResponse({ status: 404, description: 'Device not found' })
-  async remove(@Param('id', ValidateUuid) id: string): Promise<void> {
+  async remove(@ValidateUuid('id') id: string): Promise<void> {
     return this.devicesService.remove(id);
   }
 }

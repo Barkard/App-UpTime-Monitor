@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsIn, IsString, IsUUID, IsDateString } from 'class-validator';
-import { Type } from 'class-transformer';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { IsOptional, IsIn, IsUUID, IsDateString } from 'class-validator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export class IncidentQueryDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filter by device ID' })

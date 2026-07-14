@@ -5,14 +5,17 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { Device, DeviceProtocol, DeviceStatus } from './entities/device.entity';
+import { Repository, Between } from 'typeorm';
+import { Device, DeviceStatus } from './entities/device.entity';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { DeviceQueryDto } from './dto/device-query.dto';
 import { DeviceResponseDto } from './dto/device-response.dto';
 import { DeviceStatsDto } from './dto/device-stats.dto';
-import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResponseDto,
+  paginate,
+} from '../../common/dto/pagination.dto';
 import {
   MonitoringLog,
   LogStatus,
@@ -94,15 +97,7 @@ export class DevicesService {
       .take(limit)
       .getManyAndCount();
 
-    return {
-      data: data.map(this.mapToResponse),
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return paginate(data.map(this.mapToResponse), total, page, limit);
   }
 
   async findOne(id: string): Promise<DeviceResponseDto> {
@@ -216,6 +211,10 @@ export class DevicesService {
       upChecks24h: stats24h.up,
       downChecks24h: stats24h.down,
     };
+  }
+
+  async findActiveDevices(): Promise<Device[]> {
+    return this.deviceRepository.find({ where: { isActive: true } });
   }
 
   async updateLastCheck(

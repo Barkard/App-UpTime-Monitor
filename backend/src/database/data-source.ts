@@ -18,14 +18,15 @@ export const dataSourceOptions: DataSourceOptions = {
   username: configService.get('DB_USERNAME', 'uptime_user'),
   password: configService.get('DB_PASSWORD', 'uptime_pass'),
   database: configService.get('DB_NAME', 'uptime_monitor'),
-  synchronize: configService.get('DB_SYNCHRONIZE', false),
-  logging: configService.get('DB_LOGGING', false),
-  entities: ['dist/**/*.entity{.ts,.js}'],
-  migrations: ['dist/database/migrations/*{.ts,.js}'],
+  synchronize: configService.get('DB_SYNCHRONIZE') === 'true',
+  logging: configService.get('DB_LOGGING') === 'true',
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
-  ssl: configService.get('DB_SSL', false)
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl:
+    configService.get('DB_SSL') === 'true'
+      ? { rejectUnauthorized: false }
+      : false,
 };
 
 export const dataSource = new DataSource(dataSourceOptions);

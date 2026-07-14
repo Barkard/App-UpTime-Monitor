@@ -1,12 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { RealtimeGateway } from './realtime.gateway';
 
 @Injectable()
-export class RealtimeService {
+export class RealtimeService implements OnModuleInit {
   private readonly logger = new Logger(RealtimeService.name);
   private pulseInterval: NodeJS.Timeout | null = null;
 
   constructor(private gateway: RealtimeGateway) {}
+
+  onModuleInit() {
+    this.startPulse();
+  }
 
   startPulse() {
     if (this.pulseInterval) return;

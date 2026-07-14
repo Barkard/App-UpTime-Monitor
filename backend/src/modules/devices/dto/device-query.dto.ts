@@ -1,8 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsIn, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsIn } from 'class-validator';
 import { DeviceProtocol } from '../entities/device.entity';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export class DeviceQueryDto extends PaginationDto {
   @ApiPropertyOptional({ example: 'server' })

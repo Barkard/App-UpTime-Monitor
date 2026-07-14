@@ -1,7 +1,7 @@
 # Development Task Plan: NetGuard Ops (Uptime Monitor)
 
-**Version:** 1.1  
-**Status:** Backend Phase 0-2 In Progress (TypeScript Fixes)  
+**Version:** 1.3  
+**Status:** Backend Phase 0-2 Complete (builds, migrates, starts). Frontend Phases 3-4 Complete (all 4 pages implemented, verified against the live API/WebSocket). Phase 5 (Integration & Polish) and Phase 6 (Testing) not started.  
 **Language:** English (enforced)
 
 ---
@@ -28,7 +28,7 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 - **DB-01** ✅ TypeORM entities created: `Device`, `MonitoringLog`, `Incident`, `Setting` with proper relations, indexes, constraints
 - **DB-03** ✅ Default settings seed script implemented in `SettingsService.ensureDefaults()`
 
-### Phase 2: Backend Core Modules ✅ (Structure Complete, TypeScript Fixes In Progress)
+### Phase 2: Backend Core Modules ✅ (Structure Complete, TypeScript Fixes Done)
 - **CORE-01** ✅ `ConfigModule` with Joi validation schema (`config/validation.schema.ts`)
 - **CORE-02** ✅ Global pipes: `ValidationPipe`, `TransformInterceptor`, `HttpExceptionFilter`
 - **CORE-03** ✅ Global API prefix `/api`, Swagger at `/api/docs`
@@ -43,20 +43,24 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 
 ---
 
-## Critical Pending Issues (Blocking Build)
+## Resolved Since v1.1
+
+| Issue | Resolution |
+|-------|------------|
+| Import path errors, PaginationDto/PaginatedResponseDto types, monitoring↔realtime contract, SettingKey usage, `sockets.size`, manualCheck null handling | All fixed — `pnpm run build` and `pnpm run lint` pass with 0 errors |
+| Missing `handle_device_status_change` migration (DB-04) | Was already included in `InitialSchema1783979639835` migration (function created alongside tables); no separate migration needed |
+| Docker Compose uses `npm` not `pnpm` | Already fixed — `docker-compose.yml` uses `pnpm run start:dev` |
+| `typeorm-ts-node-commonjs` package causes infinite recursive process spawn on `migration:run`/`migration:generate` | Root cause: its `wrapper.sh` does `exec npx --yes -p typeorm typeorm-ts-node-commonjs`, and npx resolves the same local `node_modules/.bin` shim instead of typeorm's real bundled bin, recursing forever. Removed the `typeorm-ts-node-commonjs` devDependency; `package.json` scripts now call `node -r ts-node/register/transpile-only node_modules/typeorm/cli.js` directly. |
+| `data-source.ts` read `DB_SSL`/`DB_SYNCHRONIZE`/`DB_LOGGING` via `configService.get(key, false)`, which treated any non-empty env string (including `"false"`) as truthy | Changed to explicit `=== 'true'` string comparison, matching `database.config.ts` |
+| `API_KEY=""` in `.env` failed Joi validation (`Joi.string().optional()` rejects empty string) | Added `.allow('')` to the `API_KEY` schema entry |
+| `SettingsService` depends on `MonitoringService` (for interval reschedule) but `SettingsModule` never imported `MonitoringModule` | Added `MonitoringModule` to `SettingsModule` imports (not circular — `MonitoringModule` only needs the `Setting` entity, not `SettingsService`) |
+| `init-scripts/01-init-schema.sql` (mounted into the Docker Postgres container) and the TypeORM `InitialSchema` migration both create the same tables, so running migrations against a freshly-initialized Docker Postgres volume fails with `relation "devices" already exists` | For local dev, drop the init-script-created tables once (`DROP TABLE ... CASCADE`) before running `migration:run` so migrations remain the single schema source. Not yet fixed at the config level — still a trap for anyone spinning up a fresh `docker-compose up -d postgres` volume. |
+
+## Remaining Known Issue
 
 | Priority | Issue | Location | Impact |
 |----------|-------|----------|--------|
-| 🔴 **CRITICAL** | Import path errors (`../common/...` vs `../../common/...`) | 15+ files across modules | Build fails |
-| 🔴 **CRITICAL** | `PaginationDto` inheritance broken - `page`/`limit` not on child DTOs | `common/dto/pagination.dto.ts`, all query DTOs | TypeScript errors, runtime failures |
-| 🔴 **CRITICAL** | `PaginatedResponseDto<T>` meta type mismatch | `common/dto/pagination.ts`, all services | TypeScript errors |
-| 🔴 **CRITICAL** | `monitoring.service.ts` → `realtime.gateway.ts` type mismatch for incidents | `monitoring.service.ts:206,220`, `realtime.gateway.ts:133,147` | Runtime errors emitting events |
-| 🔴 **CRITICAL** | `settings.service.ts` `SettingKey` enum vs string in TypeORM queries | `settings.service.ts:42,51,57,76,79`, `setting.entity.ts` | TypeORM query failures |
-| 🟡 **HIGH** | `realtime.gateway.ts` `server.sockets.size` invalid in Socket.io v4 | `realtime.gateway.ts:171` | Connected clients count broken |
-| 🟡 **HIGH** | `monitoring.controller.ts` `runManualCheck` returns `CheckResult \| null` but DTO expects `CheckResult` | `monitoring.controller.ts:20` | Type mismatch |
-| 🟡 **HIGH** | Missing migration for `handle_device_status_change` PostgreSQL function | `DB-04` not done | Auto incident creation won't work |
-| 🟡 **HIGH** | Docker Compose uses `npm` not `pnpm` | `docker-compose.yml:46` | Package manager mismatch |
-| 🟡 **HIGH** | No `.gitignore` in repo root | Root | Commits will include node_modules, dist, .env |
+| 🟡 **HIGH** | `init-scripts/01-init-schema.sql` duplicates the TypeORM migration's schema, causing a conflict against a fresh Docker volume | `init-scripts/01-init-schema.sql` vs `backend/src/database/migrations/` | `migration:run` fails on a brand-new `docker-compose` Postgres volume until the init-script tables are dropped manually first. Consider removing the raw SQL init-script (letting migrations be the only source) or documenting the manual drop step. |
 
 ---
 
@@ -67,12 +71,12 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 | **SETUP-01** | Both | Initialize monorepo structure with `backend/` and `frontend/` directories | — | Folder structure exists |
 | **SETUP-02** | Backend | Create `docker-compose.yml` with PostgreSQL, backend, frontend services | SETUP-01 | `docker-compose up -d` starts all services |
 | **SETUP-03** | Backend | Initialize NestJS project in `backend/` with TypeScript, ESLint, Prettier | SETUP-01 | `npm run build` succeeds |
-| **SETUP-04** | Frontend | Initialize React + TypeScript + Vite project in `frontend/` with Tailwind CSS | SETUP-01 | `npm run dev` starts Vite dev server |
+| **SETUP-04** ✅ | Frontend | Initialize React + TypeScript + Vite project in `frontend/` with Tailwind CSS | SETUP-01 | `npm run dev` starts Vite dev server |
 | **SETUP-05** | Backend | Configure TypeORM with PostgreSQL connection, migrations, entities | SETUP-03 | `npm run migration:run` creates tables |
-| **SETUP-06** | Frontend | Configure Tailwind with design tokens from UI Spec (colors, fonts, spacing, animations) | SETUP-04 | `npm run build` succeeds, dark mode works |
+| **SETUP-06** ✅ | Frontend | Configure Tailwind with design tokens from UI Spec (colors, fonts, spacing, animations) | SETUP-04 | `npm run build` succeeds, dark mode works |
 | **SETUP-07** | Both | Set up shared TypeScript types package or copy types to both projects | SETUP-03, SETUP-04 | Types compile in both projects |
 | **SETUP-08** | Both | **Create root `.gitignore` for node_modules, dist, .env, coverage, .turbo** | SETUP-01 | Critical files ignored |
-| **SETUP-09** | Backend | **Switch package.json scripts to `pnpm`, update docker-compose to use `pnpm`** | SETUP-03 | `pnpm run build` works |
+| **SETUP-09** ✅ | Backend | **Switch package.json scripts to `pnpm`, update docker-compose to use `pnpm`** | SETUP-03 | `pnpm run build` works |
 
 ---
 
@@ -83,7 +87,7 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 | **DB-01** | Backend | Create TypeORM entities: `Device`, `MonitoringLog`, `Incident`, `Setting` matching ARCHITECTURE.md schema | SETUP-05 | Entities compile, relations correct |
 | **DB-02** | Backend | Create initial migration with all tables, indexes, constraints, triggers | DB-01 | `npm run migration:run` creates schema in DB |
 | **DB-03** | Backend | Create seed script for default settings (interval, timeout, retention) | DB-02 | Settings table populated with defaults |
-| **DB-04** | Backend | Implement `handle_device_status_change` PostgreSQL function as migration | DB-02 | Function exists, triggers work on status change |
+| **DB-04** ✅ | Backend | Implement `handle_device_status_change` PostgreSQL function as migration | DB-02 | Function exists, triggers work on status change |
 
 ---
 
@@ -97,10 +101,10 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 | **CORE-02** | Backend | Global pipes: ValidationPipe, TransformInterceptor, HttpExceptionFilter | SETUP-03 | Validation errors return 400 with details |
 | **CORE-03** | Backend | Global API prefix `/api`, Swagger setup at `/api/docs` | SETUP-03 | Swagger UI accessible |
 | **CORE-04** | Backend | Implement `ApiKeyGuard` for optional authentication (header `X-API-Key`) | SETUP-03 | Guard blocks requests without valid key |
-| **CORE-05** | Backend | **Fix all import path aliases (`../common` → `../../common`), fix PaginationDto inheritance, fix PaginatedResponseDto meta type** | SETUP-03 | `pnpm run build` succeeds, 0 TS errors |
-| **CORE-06** | Backend | **Fix monitoring.service ↔ realtime.gateway type contracts for incidents** | MON-05, RT-01 | Events emit without type errors |
-| **CORE-07** | Backend | **Fix settings.service SettingKey enum usage in TypeORM queries** | SET-01 | Queries compile |
-| **CORE-08** | Backend | **Fix realtime.gateway server.sockets.size for Socket.io v4** | RT-01 | Connected clients count works |
+| **CORE-05** ✅ | Backend | **Fix all import path aliases (`../common` → `../../common`), fix PaginationDto inheritance, fix PaginatedResponseDto meta type** | SETUP-03 | `pnpm run build` succeeds, 0 TS errors |
+| **CORE-06** ✅ | Backend | **Fix monitoring.service ↔ realtime.gateway type contracts for incidents** | MON-05, RT-01 | Events emit without type errors |
+| **CORE-07** ✅ | Backend | **Fix settings.service SettingKey enum usage in TypeORM queries** | SET-01 | Queries compile |
+| **CORE-08** ✅ | Backend | **Fix realtime.gateway server.sockets.size for Socket.io v4** | RT-01 | Connected clients count works |
 
 ### 2.2 Devices Module
 
@@ -122,7 +126,7 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 | **MON-03** | Backend | Implement `TcpChecker` using native `net.Socket` with timeout | MON-01 | `check(host, port)` returns result object |
 | **MON-04** | Backend | Implement concurrency pool (max 20) using `p-limit` or custom pool | MON-02, MON-03 | 50 devices checked concurrently limited to 20 |
 | **MON-05** | Backend | Implement `LogProcessor`: batch insert logs, call incident trigger function | MON-01, DB-04 | Logs inserted, incidents created/resolved |
-| **MON-06** | Backend | Implement dynamic scheduler: reads interval from settings, reschedules on change | MON-01, SET-01 | Interval change takes effect immediately |
+| **MON-06** ✅ | Backend | Implement dynamic scheduler: reads interval from settings, reschedules on change | MON-01, SET-01 | Interval change takes effect immediately |
 | **MON-07** | Backend | Add graceful error handling: failed checks logged, don't crash scheduler | MON-02, MON-03 | Errors in check() caught, logged, scheduler continues |
 | **MON-08** | Backend | Implement health check endpoint for monitoring engine status | MON-01 | GET /api/health/ready returns scheduler status |
 | **MON-09** | Backend | **Fix monitoring.controller manualCheck return type (null handling)** | MON-01, CORE-05 | Controller compiles |
@@ -175,46 +179,53 @@ Each task is **atomic, verifiable, and ordered by dependency**. Tasks reference 
 
 ---
 
-## Phase 3: Frontend Core Setup (Frontend) - NOT STARTED
+## Phase 3: Frontend Core Setup (Frontend) ✅ Complete
 
 ### 3.1 Project Configuration
 
 | Task ID | Agent | Description | Dependencies | Verification |
 |---------|-------|-------------|--------------|--------------|
-| **FE-CORE-01** | Frontend | Install dependencies: React Router, TanStack Query, Zustand, Socket.io-client, React Hook Form, Zod, Recharts, Lucide React / Material Symbols | SETUP-04 | All packages installed |
-| **FE-CORE-02** | Frontend | Configure TanStack Query provider with default options (staleTime: 5s, refetchOnWindowFocus: true) | FE-CORE-01 | QueryClient configured |
-| **FE-CORE-03** | Frontend | Create Zustand stores: `uiStore` (sidebar, modals, toasts), `filterStore` (table state), `realtimeStore` (live logs, pulse, device status) | FE-CORE-01 | Stores work in React DevTools |
-| **FE-CORE-04** | Frontend | Create API service layer: Axios instance with interceptors, endpoint constants | FE-CORE-01 | API calls work, errors handled |
-| **FE-CORE-05** | Frontend | Create WebSocket service: connection management, event subscriptions, reconnection logic | FE-CORE-01 | Connects to backend WS |
-| **FE-CORE-06** | Frontend | Implement `useRealtime` hook: subscribes to WS events, updates Zustand stores | FE-CORE-05, FE-CORE-03 | Live data flows to stores |
-| **FE-CORE-07** | Frontend | Create ThemeProvider: dark/light mode toggle, localStorage persistence, system detection | FE-CORE-01 | Theme toggles, persists |
+| **FE-CORE-01** ✅ | Frontend | Install dependencies: React Router, TanStack Query, Zustand, Socket.io-client, React Hook Form, Zod, Recharts, Lucide React / Material Symbols | SETUP-04 | All packages installed |
+| **FE-CORE-02** ✅ | Frontend | Configure TanStack Query provider with default options (staleTime: 5s, refetchOnWindowFocus: true) | FE-CORE-01 | QueryClient configured |
+| **FE-CORE-03** ✅ | Frontend | Create Zustand stores: `uiStore` (sidebar, modals, toasts), `filterStore` (table state), `realtimeStore` (live logs, pulse, device status) | FE-CORE-01 | Stores work in React DevTools |
+| **FE-CORE-04** ✅ | Frontend | Create API service layer: Axios instance with interceptors, endpoint constants | FE-CORE-01 | API calls work, errors handled |
+| **FE-CORE-05** ✅ | Frontend | Create WebSocket service: connection management, event subscriptions, reconnection logic | FE-CORE-01 | Connects to backend WS |
+| **FE-CORE-06** ✅ | Frontend | Implement `useRealtime` hook: subscribes to WS events, updates Zustand stores | FE-CORE-05, FE-CORE-03 | Live data flows to stores |
+| **FE-CORE-07** ✅ | Frontend | Create ThemeProvider: dark/light mode toggle, localStorage persistence, system detection | FE-CORE-01 | Theme toggles, persists (light-mode token set not yet implemented — dark only) |
 
 ### 3.2 UI Component Library (Atoms & Molecules)
 
 | Task ID | Agent | Description | Dependencies | Verification |
 |---------|-------|-------------|--------------|--------------|
-| **UI-01** | Frontend | Build base components: `Button`, `Input`, `Select`, `Card`, `Badge`, `Chip`, `Avatar`, `Tooltip`, `Modal`, `SidePanel`, `Pagination`, `LoadingSkeleton` | FE-CORE-01 | Storybook or visual test passes |
-| **UI-02** | Frontend | Build `StatusBadge` component (UP/DOWN/PAUSED variants with pulse animations) | UI-01 | Animations match UI spec |
-| **UI-03** | Frontend | Build `Sparkline` component (SVG path or CSS bars, 20-30 data points) | UI-01 | Renders latency trend |
-| **UI-04** | Frontend | Build `PulseVisualization` component (45 animated bars, CSS keyframes) | UI-01 | Smooth 500ms interval animation |
-| **UI-05** | Frontend | Build `WorldMap` component (static SVG/image + CSS positioned pins) | UI-01 | Pins render at correct positions |
-| **UI-06** | Frontend | Build `DataTable` components: `Table`, `TableHeader`, `TableRow`, `TablePagination` | UI-01 | Sortable, paginated, selectable |
-| **UI-07** | Frontend | Build `MaterialIcon` wrapper for Material Symbols Outlined | FE-CORE-01 | Icons render correctly |
+| **UI-01** ✅ | Frontend | Build base components: `Button`, `Input`, `Select`, `Card`, `Badge`, `Chip`, `Avatar`, `Tooltip`, `Modal`, `SidePanel`, `Pagination`, `LoadingSkeleton` | FE-CORE-01 | Storybook or visual test passes |
+| **UI-02** ✅ | Frontend | Build `StatusBadge` component (UP/DOWN/PAUSED variants with pulse animations) | UI-01 | Animations match UI spec (added a 4th `PENDING` state for active devices with no check yet, to avoid mislabeling them "paused") |
+| **UI-03** ✅ | Frontend | Build `Sparkline` component (SVG path or CSS bars, 20-30 data points) | UI-01 | Renders latency trend |
+| **UI-04** ✅ | Frontend | Build `PulseVisualization` component (45 animated bars, CSS keyframes) | UI-01 | Smooth 500ms interval animation, driven by real `pulse:update` WS events |
+| **UI-05** ✅ | Frontend | Build `WorldMap` component (static SVG/image + CSS positioned pins) | UI-01 | Pins at fixed illustrative positions (backend has no per-device geolocation), colored by live status |
+| **UI-06** ✅ | Frontend | Build `DataTable` components: `Table`, `TableHeader`, `TableRow`, `TablePagination` | UI-01 | Sortable via query params, paginated |
+| **UI-07** ✅ | Frontend | Build `MaterialIcon` wrapper for Material Symbols Outlined | FE-CORE-01 | Icons render correctly |
 
 ### 3.3 Layout & Navigation
 
 | Task ID | Agent | Description | Dependencies | Verification |
 |---------|-------|-------------|--------------|--------------|
-| **LAY-01** | Frontend | Build `AppShell`: Sidebar (fixed 240px desktop, drawer mobile), TopBar (sticky), Main content area | UI-01, FE-CORE-03 | Layout matches UI spec |
-| **LAY-02** | Frontend | Build `Sidebar` with navigation links (Dashboard, Devices, Event Logs, Settings), active state, brand, CTA button | LAY-01 | Navigation works, responsive |
-| **LAY-03** | Frontend | Build `TopBar` with page title, global search (expandable), refresh button, notification bell, avatar | LAY-01 | Search expands, icons work |
-| **LAY-04** | Frontend | Configure React Router with routes: `/`, `/devices`, `/logs`, `/settings` | LAY-01 | Routes navigate correctly |
+| **LAY-01** ✅ | Frontend | Build `AppShell`: Sidebar (fixed 240px desktop, drawer mobile), TopBar (sticky), Main content area | UI-01, FE-CORE-03 | Layout matches UI spec (mobile drawer not implemented — desktop fixed sidebar only) |
+| **LAY-02** ✅ | Frontend | Build `Sidebar` with navigation links (Dashboard, Devices, Event Logs, Settings), active state, brand, CTA button | LAY-01 | Navigation works |
+| **LAY-03** ✅ | Frontend | Build `TopBar` with page title, global search (expandable), refresh button, notification bell, avatar | LAY-01 | Search expands, icons work (search input is currently visual-only, not wired to a query) |
+| **LAY-04** ✅ | Frontend | Configure React Router with routes: `/`, `/devices`, `/logs`, `/settings` | LAY-01 | Routes navigate correctly |
 
 ---
 
-## Phase 4: Frontend Pages & Features - NOT STARTED
+## Phase 4: Frontend Pages & Features ✅ Complete
 
-(unchanged from v1.0)
+All four pages implemented and verified end-to-end against the live backend (device CRUD, manual checks, incidents, settings, realtime pulse/live-log/status events) via Playwright screenshots — no console errors, no broken layout.
+
+| Page | Status | Notes |
+|------|--------|-------|
+| Dashboard (`/`) | ✅ | KPI cards, device grid with sparkline + real per-device `uptimePercentage24h`, world map, incident log widget, "Quick Add Host" opens the device form |
+| Device Management (`/devices`) | ✅ | Stats overview, searchable/paginated table, add/edit side panel (React Hook Form + Zod), pause/resume, delete with confirm |
+| Event Logs (`/logs`) | ✅ | Live pulse visualization, health summary, live event log table (device/severity filters, CSV export of the current live buffer) |
+| Settings (`/settings`) | ✅ | Monitoring interval/timeout/concurrency/retention form wired to `GET/PATCH /api/settings` |
 
 ---
 

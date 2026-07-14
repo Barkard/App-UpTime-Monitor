@@ -2,7 +2,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
@@ -11,7 +10,9 @@ import { Device } from '../../devices/entities/device.entity';
 
 @Entity('incidents')
 @Index('idx_incidents_device_id_started_at', ['deviceId', 'startedAt'])
-@Index('idx_incidents_resolved_at', ['resolvedAt'], { where: 'resolved_at IS NOT NULL' })
+@Index('idx_incidents_resolved_at', ['resolvedAt'], {
+  where: 'resolved_at IS NOT NULL',
+})
 @Index('idx_incidents_ongoing', ['deviceId'], { where: 'resolved_at IS NULL' })
 export class Incident {
   @PrimaryGeneratedColumn('uuid')

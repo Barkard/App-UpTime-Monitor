@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { DeviceStatus } from '../devices/entities/device.entity';
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -91,7 +92,7 @@ export class RealtimeGateway
 
   emitDeviceStatus(
     deviceId: string,
-    status: 'UP' | 'DOWN' | 'INACTIVE',
+    status: DeviceStatus,
     latency: number | null,
   ) {
     this.server.to(`device:${deviceId}`).emit('device:status-changed', {
@@ -118,10 +119,8 @@ export class RealtimeGateway
   }
 
   emitLiveLog(log: {
-    id: string;
     deviceId: string;
-    deviceName: string;
-    status: 'UP' | 'DOWN';
+    status: DeviceStatus;
     latency: number | null;
     error: string | null;
     timestamp: string;
@@ -168,6 +167,6 @@ export class RealtimeGateway
   }
 
   getConnectedClients(): number {
-    return this.server?.sockets?.size || 0;
+    return this.server?.sockets?.sockets?.size || 0;
   }
 }

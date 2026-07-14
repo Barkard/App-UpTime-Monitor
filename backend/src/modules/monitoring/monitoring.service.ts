@@ -1,13 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, QueryRunner } from 'typeorm';
-import { Device, DeviceProtocol, DeviceStatus } from '../devices/entities/device.entity';
+import { Repository, QueryRunner, IsNull } from 'typeorm';
+import {
+  Device,
+  DeviceProtocol,
+  DeviceStatus,
+} from '../devices/entities/device.entity';
 import { MonitoringLog, LogStatus } from './entities/monitoring-log.entity';
 import { Incident } from '../incidents/entities/incident.entity';
 import { IcmpChecker } from './checkers/icmp.checker';
 import { TcpChecker } from './checkers/tcp.checker';
-import { CheckerResult, Checker } from './checkers/checker.interface';
+import { Checker } from './checkers/checker.interface';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 interface CheckJob {
@@ -66,7 +70,7 @@ export class MonitoringService {
 
       if (executing.length >= limit) {
         await Promise.race(executing);
-        const completedIndex = executing.findIndex((p) =>
+        const completedIndex = executing.findIndex(() =>
           results.some((r) => r.deviceId === job.device.id),
         );
         if (completedIndex >= 0) {
@@ -131,11 +135,13 @@ export class MonitoringService {
         });
         if (!device) continue;
 
-        const status: DeviceStatus = result.success ? 'UP' : 'DOWN';
+        const status: DeviceStatus = result.success
+          ? DeviceStatus.UP
+          : DeviceStatus.DOWN;
 
         const log = queryRunner.manager.create(MonitoringLog, {
           deviceId: result.deviceId,
-          status: status === 'UP' ? LogStatus.UP : LogStatus.DOWN,
+          status: status === DeviceStatus.UP ? LogStatus.UP : LogStatus.DOWN,
           latency: result.latency,
           errorMessage: result.error,
         });
@@ -191,9 +197,9 @@ export class MonitoringService {
     newStatus: DeviceStatus,
     timestamp: Date,
   ): Promise<void> {
-    if (newStatus === 'DOWN') {
+    if (newStatus === DeviceStatus.DOWN) {
       const existing = await queryRunner.manager.findOne(Incident, {
-        where: { deviceId, resolvedAt: null },
+        where: { deviceId, resolvedAt: IsNull() },
       });
 
       if (!existing) {
@@ -203,11 +209,22 @@ export class MonitoringService {
         });
         await queryRunner.manager.save(incident);
 
-        this.realtimeGateway.emitIncidentCreated(incident);
+        const device = await queryRunner.manager.findOne(Device, {
+          where: { id: deviceId },
+        });
+
+        this.realtimeGateway.emitIncidentCreated({
+          incidentId: incident.id,
+          deviceId: incident.deviceId,
+          deviceName: device?.name ?? '',
+          startedAt: incident.startedAt.toISOString(),
+          resolvedAt: null,
+          duration: null,
+        });
       }
-    } else if (newStatus === 'UP') {
+    } else if (newStatus === DeviceStatus.UP) {
       const incident = await queryRunner.manager.findOne(Incident, {
-        where: { deviceId, resolvedAt: null },
+        where: { deviceId, resolvedAt: IsNull() },
       });
 
       if (incident) {
@@ -217,7 +234,18 @@ export class MonitoringService {
         );
         await queryRunner.manager.save(incident);
 
-        this.realtimeGateway.emitIncidentResolved(incident);
+        const device = await queryRunner.manager.findOne(Device, {
+          where: { id: deviceId },
+        });
+
+        this.realtimeGateway.emitIncidentResolved({
+          incidentId: incident.id,
+          deviceId: incident.deviceId,
+          deviceName: device?.name ?? '',
+          startedAt: incident.startedAt.toISOString(),
+          resolvedAt: incident.resolvedAt.toISOString(),
+          duration: incident.duration,
+        });
       }
     }
   }
@@ -231,7 +259,9 @@ export class MonitoringService {
     }>,
   ): void {
     for (const result of results) {
-      const status: DeviceStatus = result.success ? 'UP' : 'DOWN';
+      const status: DeviceStatus = result.success
+        ? DeviceStatus.UP
+        : DeviceStatus.DOWN;
 
       this.realtimeGateway.emitDeviceStatus(
         result.deviceId,
@@ -251,7 +281,7 @@ export class MonitoringService {
           status,
           latency: result.latency,
           error: result.error,
-          timestamp: result.timestamp,
+          timestamp: result.timestamp.toISOString(),
         });
       }
     }
@@ -265,16 +295,26 @@ export class MonitoringService {
   }
 
   async runManualCheck(deviceId: string): Promise<CheckResult | null> {
-    const device = await this.deviceRepository.findOne({ where: { id: deviceId } });
+    const device = await this.deviceRepository.findOne({
+      where: { id: deviceId },
+    });
     if (!device) {
       return null;
     }
     const results = await this.checkDevices([device]);
+    await this.processResults(results);
     return results[0] ?? null;
   }
 
-  getStatus(): { status: string; maxConcurrentChecks: number; interval: number } {
-    const interval = this.configService.get<number>('monitoring.interval', 30000);
+  getStatus(): {
+    status: string;
+    maxConcurrentChecks: number;
+    interval: number;
+  } {
+    const interval = this.configService.get<number>(
+      'monitoring.interval',
+      30000,
+    );
     return {
       status: 'ok',
       maxConcurrentChecks: this.maxConcurrentChecks,
@@ -284,11 +324,9 @@ export class MonitoringService {
 
   reschedule(intervalSeconds: number): void {
     this.configService.set('monitoring.interval', intervalSeconds * 1000);
-    this.logger.log(`Monitoring interval updated to ${intervalSeconds} seconds`);
-  }
-
-  async findActiveDevices(): Promise<Device[]> {
-    return this.deviceRepository.find({ where: { isActive: true } });
+    this.logger.log(
+      `Monitoring interval updated to ${intervalSeconds} seconds`,
+    );
   }
 }
 

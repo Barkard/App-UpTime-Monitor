@@ -1,5 +1,3 @@
-import { ConfigService } from '@nestjs/config';
-
 export default () => ({
   port: parseInt(process.env.PORT || '3000', 10),
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',

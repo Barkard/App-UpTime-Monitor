@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Checker, CheckerResult } from './checker.interface';
-import { createConnection, Socket } from 'net';
+import { createConnection } from 'net';
 
 @Injectable()
 export class TcpChecker implements Checker {
@@ -35,7 +35,6 @@ export class TcpChecker implements Checker {
       });
 
       socket.on('error', (error) => {
-        const latency = Date.now() - startTime;
         resolve({
           success: false,
           latency: null,

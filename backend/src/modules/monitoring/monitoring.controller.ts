@@ -1,14 +1,25 @@
-import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { MonitoringService } from './monitoring.service';
+import { MonitoringScheduler } from './monitoring.scheduler';
 import { CheckResultDto } from './dto/check-result.dto';
-import { ApiKeyGuard } from '../common/guards/api-key.guard';
+import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 
 @ApiTags('Monitoring')
 @Controller('monitoring')
 @UseGuards(ApiKeyGuard)
 export class MonitoringController {
-  constructor(private readonly monitoringService: MonitoringService) {}
+  constructor(
+    private readonly monitoringService: MonitoringService,
+    private readonly monitoringScheduler: MonitoringScheduler,
+  ) {}
 
   @Post('check/:deviceId')
   @ApiOperation({ summary: 'Run a manual check for a device' })
@@ -17,7 +28,11 @@ export class MonitoringController {
   async manualCheck(
     @Param('deviceId') deviceId: string,
   ): Promise<CheckResultDto> {
-    return this.monitoringService.runManualCheck(deviceId);
+    const result = await this.monitoringService.runManualCheck(deviceId);
+    if (!result) {
+      throw new NotFoundException(`Device with ID ${deviceId} not found`);
+    }
+    return { ...result, timestamp: result.timestamp.toISOString() };
   }
 
   @Get('status')
@@ -32,6 +47,9 @@ export class MonitoringController {
     },
   })
   async getStatus() {
-    return this.monitoringService.getStatus();
+    return {
+      ...this.monitoringService.getStatus(),
+      ...this.monitoringScheduler.getStatus(),
+    };
   }
 }

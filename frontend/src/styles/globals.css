@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+@import './animations.css';
+
+@config '../../tailwind.config.ts';
+
+body {
+  @apply bg-background text-on-surface font-inter;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  font-size: 24px;
+  line-height: 1;
+  user-select: none;
+}
+
+.material-symbols-outlined.icon-fill {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}

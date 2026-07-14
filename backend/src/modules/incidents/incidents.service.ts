@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Incident } from './entities/incident.entity';
 import { IncidentQueryDto } from './dto/incident-query.dto';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
